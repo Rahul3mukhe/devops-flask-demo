@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: ./app
+    image: YOUR_DOCKERHUB_USERNAME/devops-flask-demo:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_NAME=DevOpsDemo
+      - APP_VERSION=v1.0
+    restart: unless-stopped
