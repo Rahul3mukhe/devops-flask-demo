@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "Rahul3mukhe/devops-flask-demo"
+        DOCKER_IMAGE = "Rahul_3mukhe/devops-flask-demo"
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
         DEPLOY_CONTAINER_NAME = "devops-flask-demo"
