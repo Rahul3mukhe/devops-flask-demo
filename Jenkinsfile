@@ -2,10 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "Rahul_3mukhe/devops-flask-demo"
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
-        DEPLOY_CONTAINER_NAME = "devops-flask-demo"
+        DH_USER = 'Rahul_3mukhe'
+        DH_PASS = credentials('docker-hub-creds')
     }
 
     stages {
@@ -18,19 +16,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 bat """
-                docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ./app
-                docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_IMAGE%:latest
+                docker build -t rahul3mukhe/devops-flask-demo:${BUILD_NUMBER} ./app
+                docker tag rahul3mukhe/devops-flask-demo:${BUILD_NUMBER} rahul3mukhe/devops-flask-demo:latest
                 """
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS, usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DH_PASS', usernameVariable: 'DH_USER')]) {
                     bat """
                     echo %DH_PASS% | docker login -u %DH_USER% --password-stdin
-                    docker push %DOCKER_IMAGE%:%DOCKER_TAG%
-                    docker push %DOCKER_IMAGE%:latest
+                    docker push rahul3mukhe/devops-flask-demo:${BUILD_NUMBER}
+                    docker push rahul3mukhe/devops-flask-demo:latest
                     docker logout
                     """
                 }
@@ -40,16 +38,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 bat """
-                docker rm -f %DEPLOY_CONTAINER_NAME% || true
-                docker run -d --name %DEPLOY_CONTAINER_NAME% -p 5000:5000 %DOCKER_IMAGE%:%DOCKER_TAG%
+                docker rm -f devops-flask-demo || true
+                docker run -d --name devops-flask-demo -p 5000:5000 rahul3mukhe/devops-flask-demo:${BUILD_NUMBER}
                 """
             }
-        }
-    }
-
-    post {
-        always {
-            echo "Pipeline finished successfully."
         }
     }
 }
