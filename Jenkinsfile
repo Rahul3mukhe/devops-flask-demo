@@ -23,6 +23,8 @@ pipeline {
                     echo Running basic test...
                     python --version
                 """
+                echo "New test line added"
+
             }
         }
 
