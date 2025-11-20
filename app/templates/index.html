@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DevOps Inventory System</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">🚀 DevOps Inventory</a>
+    <div class="ml-auto">
+      <span class="badge badge-primary" id="ver-badge">v-</span>
+      <span class="ml-2" id="health-badge">health</span>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6>Total Items</h6>
+            <h2 id="count-items">0</h2>
+            <button class="btn btn-sm btn-outline-secondary mt-2" onclick="loadData()">Refresh</button>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <h6>Add Item</h6>
+            <form id="add-form" onsubmit="submitAdd(event)">
+              <div class="form-group">
+                <input id="name" class="form-control" placeholder="Item name" required>
+              </div>
+              <div class="form-group">
+                <textarea id="desc" class="form-control" placeholder="Description (optional)"></textarea>
+              </div>
+              <button class="btn btn-primary btn-block">Add</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4>Inventory</h4>
+          <div>
+            <input id="search" class="form-control form-control-sm" placeholder="Search name..." oninput="search()" style="width:220px;display:inline-block">
+          </div>
+        </div>
+
+        <table class="table table-hover">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Desc</th><th>Created</th><th>Action</th></tr>
+          </thead>
+          <tbody id="items-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer mt-4 text-muted">Deployed by Jenkins • Docker • Auto CI/CD pipeline</div>
+  </div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
