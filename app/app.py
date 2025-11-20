@@ -1,95 +1,106 @@
-from flask import Flask, jsonify, request, render_template_string
+from flask import Flask, request, jsonify
+from datetime import datetime
 import logging
-import datetime
 
 app = Flask(__name__)
 
-# -------------------------------
-# Logging Setup
-# -------------------------------
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+# Simple in-memory mock database
+items_db = {
+    1: {"name": "Laptop", "price": 55000},
+    2: {"name": "Mouse", "price": 600},
+    3: {"name": "Keyboard", "price": 1200}
+}
 
-# -------------------------------
-# Home Page (HTML)
-# -------------------------------
-HTML_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>DevOps Flask App</title>
-</head>
-<body style="font-family:Arial; padding:40px;">
-    <h2>🚀 DevOps Flask Demo</h2>
-    <p>This app is deployed automatically using Jenkins CI/CD pipeline.</p>
-    <hr>
-    <h3>Available Endpoints:</h3>
-    <ul>
-        <li>GET <b>/</b> → Home Page</li>
-        <li>GET <b>/api/data</b> → Fetch sample JSON data</li>
-        <li>POST <b>/api/add</b> → Add numbers</li>
-        <li>GET <b>/health</b> → Health check</li>
-        <li>GET <b>/version</b> → Application version</li>
-    </ul>
-</body>
-</html>
-"""
+APP_VERSION = "2.0.1"
+
+# -------------------------------------------------------
+# Logging Configuration
+# -------------------------------------------------------
+logging.basicConfig(filename="app.log",
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+
+@app.before_request
+def log_request():
+    logging.info(f"{request.method} request at {request.path}")
+
+# -------------------------------------------------------
+# ROUTES
+# -------------------------------------------------------
 
 @app.route("/")
 def home():
-    logging.info("Home page accessed")
-    return render_template_string(HTML_PAGE)
+    return """
+    <h1>🚀 DevOps Flask Demo</h1>
+    <p>This is a fully automated CI/CD Flask application.</p>
+    <h3>Available Endpoints:</h3>
+    <ul>
+        <li>GET /items → Fetch all items</li>
+        <li>GET /items/&lt;id&gt; → Fetch a single item</li>
+        <li>POST /items → Add new item</li>
+        <li>PUT /items/&lt;id&gt; → Update item</li>
+        <li>DELETE /items/&lt;id&gt; → Delete item</li>
+        <li>GET /health → Health check</li>
+        <li>GET /version → App version</li>
+    </ul>
+    """
 
-# -------------------------------
-# API Endpoint: GET
-# -------------------------------
-@app.route("/api/data", methods=["GET"])
-def get_data():
-    sample = {
-        "message": "Welcome to DevOps Flask API",
-        "status": "success",
-        "timestamp": str(datetime.datetime.now())
-    }
-    logging.info("Data API accessed")
-    return jsonify(sample)
+# -------------------------------------------------------
+# API ENDPOINTS (CRUD)
+# -------------------------------------------------------
 
-# -------------------------------
-# API Endpoint: POST
-# -------------------------------
-@app.route("/api/add", methods=["POST"])
-def add_numbers():
-    data = request.get_json()
-    
-    if not data or "a" not in data or "b" not in data:
-        return jsonify({"error": "Missing inputs"}), 400
+@app.route("/items", methods=["GET"])
+def get_items():
+    return jsonify({"items": items_db})
 
-    result = data["a"] + data["b"]
-    logging.info(f"Add API requested: {data['a']} + {data['b']} = {result}")
-    return jsonify({"result": result})
+@app.route("/items/<int:item_id>", methods=["GET"])
+def get_item(item_id):
+    item = items_db.get(item_id)
+    if item:
+        return jsonify({"item": item})
+    return jsonify({"error": "Item not found"}), 404
 
-# -------------------------------
-# Health Check (for Jenkins/Docker)
-# -------------------------------
-@app.route("/health", methods=["GET"])
-def health_check():
-    return jsonify({"status": "UP"}), 200
+@app.route("/items", methods=["POST"])
+def add_item():
+    data = request.json
+    new_id = max(items_db.keys()) + 1
+    items_db[new_id] = data
+    return jsonify({"message": "Item added successfully", "id": new_id})
 
-# -------------------------------
-# Version (updates every build)
-# -------------------------------
-@app.route("/version", methods=["GET"])
+@app.route("/items/<int:item_id>", methods=["PUT"])
+def update_item(item_id):
+    if item_id not in items_db:
+        return jsonify({"error": "Item not found"}), 404
+
+    data = request.json
+    items_db[item_id].update(data)
+    return jsonify({"message": "Item updated", "item": items_db[item_id]})
+
+@app.route("/items/<int:item_id>", methods=["DELETE"])
+def delete_item(item_id):
+    if item_id not in items_db:
+        return jsonify({"error": "Item not found"}), 404
+
+    del items_db[item_id]
+    return jsonify({"message": "Item deleted"})
+
+# -------------------------------------------------------
+# HEALTH CHECK
+# -------------------------------------------------------
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "UP", "timestamp": datetime.now().isoformat()})
+
+# -------------------------------------------------------
+# VERSION
+# -------------------------------------------------------
+
+@app.route("/version")
 def version():
-    return jsonify({
-        "app": "DevOps Flask Demo",
-        "version": "1.0.0",
-        "deployed_at": str(datetime.datetime.now())
-    })
+    return jsonify({"version": APP_VERSION})
 
-# -------------------------------
-# Run App
-# -------------------------------
+# -------------------------------------------------------
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
