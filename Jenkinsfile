@@ -22,8 +22,9 @@ pipeline {
                 bat """
                     echo Running basic test...
                     python --version
+                    echo "New test line added"
                 """
-                echo "New test line added"
+                
 
             }
         }
