@@ -24,6 +24,8 @@ pipeline {
                     python --version
                     echo "New test line added"
                     echo "Test line 2 added"
+                    echo "Sir, this is automatic update test"
+
 
                 """
                 
