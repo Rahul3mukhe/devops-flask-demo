@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DH_USER = 'rahul3mukhe0405'
+        DOCKER_USER = 'rahul3mukhe0405'
     }
 
     stages {
@@ -17,8 +17,8 @@ pipeline {
             steps {
                 bat """
                     echo Building Docker Image...
-                    docker build -t %DH_USER%/devops-flask-demo:%BUILD_NUMBER% ./app
-                    docker tag %DH_USER%/devops-flask-demo:%BUILD_NUMBER% %DH_USER%/devops-flask-demo:latest
+                    docker build -t %DOCKER_USER%/devops-flask-demo:%BUILD_NUMBER% ./app
+                    docker tag %DOCKER_USER%/devops-flask-demo:%BUILD_NUMBER% %DOCKER_USER%/devops-flask-demo:latest
                 """
             }
         }
@@ -26,17 +26,18 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-creds',
-                    usernameVariable: 'DH_USER_VAR',
-                    passwordVariable: 'DH_PASS'
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'LOGIN_USER',
+                    passwordVariable: 'LOGIN_PASS'
                 )]) {
+
                     bat """
                         echo Logging in to Docker Hub...
-                        echo %DH_PASS% | docker login -u %DH_USER_VAR% --password-stdin
+                        echo %LOGIN_PASS% | docker login -u %LOGIN_USER% --password-stdin
 
-                        echo Pushing image...
-                        docker push %DH_USER%/devops-flask-demo:%BUILD_NUMBER%
-                        docker push %DH_USER%/devops-flask-demo:latest
+                        echo Pushing images...
+                        docker push %DOCKER_USER%/devops-flask-demo:%BUILD_NUMBER%
+                        docker push %DOCKER_USER%/devops-flask-demo:latest
 
                         docker logout
                     """
@@ -48,10 +49,10 @@ pipeline {
             steps {
                 bat """
                     echo Stopping old container...
-                    docker rm -f devops-flask-demo || echo No old container
+                    docker rm -f devops-flask-demo || echo No old container found
 
                     echo Running new container...
-                    docker run -d --name devops-flask-demo -p 5000:5000 %DH_USER%/devops-flask-demo:%BUILD_NUMBER%
+                    docker run -d --name devops-flask-demo -p 5000:5000 %DOCKER_USER%/devops-flask-demo:%BUILD_NUMBER%
                 """
             }
         }
