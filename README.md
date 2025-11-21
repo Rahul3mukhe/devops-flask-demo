@@ -1,4 +1,4 @@
-#DevOps Flask Demo 
+##DevOps Flask Demo 
 This project showcases a fully automated CI/CD pipeline using Jenkins, Docker, GitHub, and a Flask-based web application. It demonstrates how modern DevOps workflows enable continuous integration, automated testing, containerized deployments, and zero‑downtime delivery. The system rebuilds and deploys the application automatically whenever new changes are pushed to GitHub.
 
 #1. Project Overview
