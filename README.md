@@ -1,9 +1,9 @@
-##DevOps Flask Demo 
+## DevOps Flask Demo 
 This project showcases a fully automated CI/CD pipeline using Jenkins, Docker, GitHub, and a Flask-based web application. It demonstrates how modern DevOps workflows enable continuous integration, automated testing, containerized deployments, and zero‑downtime delivery. The system rebuilds and deploys the application automatically whenever new changes are pushed to GitHub.
 
-#1. Project Overview
+# 1. Project Overview
 The DevOps Flask Demo is a CRUD‑based web application built using Flask and SQLAlchemy. It includes a modern UI with HTML, CSS, and JavaScript to provide an interactive interface. The major focus of this project is DevOps, where we implement an end‑to‑end automated pipeline capable of building, testing, pushing, and deploying the application without any manual steps.
-2. What This Project Demonstrates
+# 2. What This Project Demonstrates
 Fully automated Jenkins CI/CD pipeline
 GitHub Webhooks for auto‑triggered builds
 Dockerized Flask application
